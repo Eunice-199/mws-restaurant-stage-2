@@ -395,6 +395,32 @@ nav h1 a {
     }
 }
 
+[id='toggle-heart'] {
+    position: absolute;
+    left: -100vw;
+}
+
+[for='toggle-heart'] {
+    color: #aab8c2;
+    font-size: 4em;
+    cursor: pointer;
+}
+
+[id='toggle-heart']:checked+label {
+    color: hotpink;
+}
+
+[id='toggle-heart']:focus+label {
+    text-shadow: 0 0 7px #1646e4, 0 1px 5px #1646e4, 0 -1px 1px #1646e4, 1px 0 5px #1646e4, -1px 0 1px #1646e4;
+}
+
+
+/* Leaflet for Accessibility */
+
+.leaflet-container a {
+    color: #8747d0;
+}
+
 
 /* ====================== Responsiveness ====================== */
 

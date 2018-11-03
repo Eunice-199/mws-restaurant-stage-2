@@ -1,22 +1,22 @@
-import idb from 'idb';
+//check for support
+(function() {
+    if (!('indexedDB' in window)) {
+        console.log('This browser doesn\'t support IndexedDB');
+        return;
+    }
+})();
 
-const dbPromise = idb.open('restaurants', 3, upgradeDB => {
+const dbPromise = idb.open("restaurant-details", 1, upgradeDB => {
     switch (upgradeDB.oldVersion) {
         case 0:
-            upgradeDB.createObjectStore('restaurants', { keyPath: 'id' });
-        case 1:
-            upgradeDB.createObjectStore('reviews', { keyPath: 'id' });
-        case 2:
-            upgradeDB.createObjectStore('newReviews', { keyPath: 'id', autoIncrement: true });
-        case 3:
-            upgradeDB.createObjectStore('likes', { keyPath: 'id', autoIncrement: true });
+            upgradeDB.createObjectStore("restaurants", { keyPath: 'id' });
     }
 });
-
 
 /**
  * Common database helper functions.
  */
+
 class DBHelper {
 
     /**
@@ -24,14 +24,15 @@ class DBHelper {
      * Change this to restaurants.json file location on your server.
      */
     static get DATABASE_URL() {
-        // const port = 1337 // Change this to your server port
-        // return `http://localhost:${port}/data/restaurants.json`;
-        return `https://guarded-ocean-78745.herokuapp.com/restaurants`;
+        const port = 1338 // Change this to your server port
+        return `http://localhost:${port}/restaurants`;
     }
 
     /**
      * Fetch all restaurants.
      */
+
+
     // static fetchRestaurants(callback) {
     //     let xhr = new XMLHttpRequest();
     //     xhr.open('GET', DBHelper.DATABASE_URL);
@@ -49,94 +50,113 @@ class DBHelper {
     // }
 
 
-    static fetchRestaurants(callback) {
-        fetch(DBHelper.DATABASE_URL)
-            .then(res => {
-                if (res.ok) {
-                    return res.json();
-                }
-            })
-            .then(restaurants => {
-                dbPromise.then(db => {
-                    const tx = db.transaction("restaurants", "readwrite");
-                    const store = tx.objectStore("restaurants");
-                    restaurants.forEach(restaurant => {
-                        console.log("putting restaurants in idb")
-                        store.put(restaurant)
-                    })
-                });
-                callback(null, restaurants);
-            })
-            .catch(err => {
-                console.log("fetch failed")
-                    // callback(null, err)
-                dbPromise.then(db => {
-                    const tx = db.transaction("restaurants", "readonly");
-                    const store = tx.objectStore("restaurants");
-                    store.getAll().then(restaurantsIdb => {
-                        callback(null, restaurantsIdb)
-                    })
 
+    static fetchRestaurants(callback, id) {
+        let fetchURL;
+        if (!id) {
+            fetchURL = DBHelper.DATABASE_URL;
+        } else {
+            fetchURL = DBHelper.DATABASE_URL + '/' + id;
+        }
+
+        if (!navigator.serviceWorker.controller) {
+            let DATABASE_URL = "http://localhost:1338/restaurants";
+            // let restaurants;
+            fetch(DATABASE_URL, { method: 'GET' })
+                .then(response => {
+                    return response.json()
                 })
-            });
+                .then(restaurants => {
+                    //const objKey = Object.keys(restaurants)[0];
+                    // console.log(restaurants);
+                    dbPromise.then(dbObj => {
+                        const tx = dbObj.transaction("restaurants", "readwrite")
+                            .objectStore("restaurants");
+                        restaurants.forEach(restaurant => {
+                            tx.put(restaurant);
+                            //return tx.complete;
+                        });
+                    });
+                    // callback(null, restaurants[objKey]);
+                    //console.log(restaurants);
+                    callback(null, restaurants);
+                })
+                .catch(error => {
+                    // Oops!. The server returned an error.
+                    callback(error, null);
+                });
+        } else {
+            return dbPromise
+                .then(dbObj => {
+                    if (!dbObj) return;
+                    return dbObj
+                        .transaction("restaurants")
+                        .objectStore("restaurants")
+                        .getAll();
+                })
+                .then(restaurants => {
+                    // return restaurants.json()
+                    callback(null, restaurants);
+                });
+        }
     }
-
 
 
 
     /**
      * Fetch a restaurant by its ID.
      */
+    // static fetchRestaurantById(id, callback) {
+    //     // fetch all restaurants with proper error handling.
+    //     DBHelper.fetchRestaurants((error, restaurants) => {
+    //         if (error) {
+    //             callback(error, null);
+    //         } else {
+    //             const restaurant = restaurants.find(r => r.id == id);
+    //             if (restaurant) { // Got the restaurant
+    //                 callback(null, restaurant);
+    //             } else { // Restaurant does not exist in the database
+    //                 callback('Restaurant does not exist', null);
+    //             }
+    //         }
+    //     });
+    // }
+
+
     static fetchRestaurantById(id, callback) {
         // fetch all restaurants with proper error handling.
         DBHelper.fetchRestaurants((error, restaurants) => {
             if (error) {
                 callback(error, null);
             } else {
-                const restaurant = restaurants.find(r => r.id == id);
-                if (restaurant) { // Got the restaurant
+                //const restaurant = restaurants.find(r => r.id == id);
+                const restaurant = restaurants;
+                if (restaurant) {
+                    // Got the restaurant
                     callback(null, restaurant);
-                } else { // Restaurant does not exist in the database
-                    callback('Restaurant does not exist', null);
+                } else {
+                    // Restaurant does not exist in the database
+                    callback("Restaurant does not exist", null);
                 }
             }
-        });
+        }, id);
     }
 
-
-    static fetchReviewsById(id, callback) {
-        fetch(`https://guarded-ocean-78745.herokuapp.com/reviews/?restaurant_id=${id}`)
-            .then(res => {
-                if (res.ok) {
-                    return res.json();
-                }
-            })
-            .then(reviews => {
-                console.log(reviews)
-                dbPromise.then(db => {
-                    const tx = db.transaction("reviews", "readwrite");
-                    const store = tx.objectStore("reviews");
-                    reviews.forEach(review => {
-                        console.log("putting reviews in idb")
-                        store.put(review)
-                    })
-                });
-                callback(null, reviews);
-            })
-            .catch(err => {
-                console.log("fetch failed")
-                    // callback(null, err)
-                dbPromise.then(db => {
-                    const tx = db.transaction("reviews", "readonly");
-                    const store = tx.objectStore("reviews");
-                    console.log(store)
-                    store.getAll().then(reviewsIdb => {
-                        callback(null, reviewsIdb)
-                    })
-
+    static fetchRestaurantReviewsById(id, callback) {
+        // Fetch all reviews for the specific restaurant
+        const fetchURL = DBHelper.DATABASE_REVIEWS_URL + "/?restaurant_id=" + id;
+        fetch(fetchURL, { method: "GET" }).then(response => {
+            if (!response.clone().ok && !response.clone().redirected) {
+                throw "No reviews available";
+            }
+            response
+                .json()
+                .then(result => {
+                    callback(null, result);
                 })
-            });
+        }).catch(error => callback(error, null));
     }
+
 
 
 
@@ -243,7 +263,12 @@ class DBHelper {
      * Restaurant image URL.
      */
     static imageUrlForRestaurant(restaurant) {
-        return (`/img/${restaurant.photograph}`);
+        if (restaurant.photograph) {
+            const imgPath = `${restaurant.photograph}.jpg`
+            return (`/images/${imgPath}`);
+        } else {
+            return (`/images/no-image.svg`)
+        }
     }
 
     /**

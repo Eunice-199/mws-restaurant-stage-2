@@ -79,7 +79,8 @@ fetchRestaurantFromURL = (callback) => {
 /**
  * Create restaurant HTML and add it to the webpage
  */
-fillRestaurantHTML = (restaurant = self.restaurant) => {
+const fillRestaurantHTML = (restaurant = self.restaurant) => {
+
     const name = document.getElementById('restaurant-name');
     name.innerHTML = restaurant.name;
 
@@ -89,6 +90,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
     const image = document.getElementById('restaurant-img');
     image.className = 'restaurant-img'
     image.src = DBHelper.imageUrlForRestaurant(restaurant);
+    image.alt = " "
 
     const cuisine = document.getElementById('restaurant-cuisine');
     cuisine.innerHTML = restaurant.cuisine_type;
@@ -97,13 +99,26 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
     if (restaurant.operating_hours) {
         fillRestaurantHoursHTML();
     }
-    // fill reviews
-    fillReviewsHTML();
-}
 
-/**
- * Create restaurant operating hours HTML table and add it to the webpage.
- */
+    fillLikeStatus();
+    //fill reviews 
+    DBHelper.fetchReviewsById(restaurant.id, (error, reviews) => {
+        if (error) {
+            callback(error, null)
+        } else {
+            fillReviewsHTML(reviews);
+        }
+
+    })
+}
+const fillLikeStatus = (likeStatus = self.restaurant.is_favorite) => {
+        console.log("is_favorite: " + likeStatus)
+        const heart = document.getElementById("toggle-heart");
+        heart.checked = likeStatus;
+    }
+    /**
+     * Create restaurant operating hours HTML table and add it to the webpage.
+     */
 fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => {
     const hours = document.getElementById('restaurant-hours');
     for (let key in operatingHours) {
