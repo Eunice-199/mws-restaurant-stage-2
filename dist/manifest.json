@@ -1,0 +1,14 @@
+{
+    "short_name": "Reviews",
+    "name": "Restaurant Reviews MWS-project 2",
+    "icons": [
+        { "src": "/images/icon-food-1x.png", "type": "image/png", "sizes": "48x48" },
+        { "src": "/images/icon-food-2x.png", "type": "image/png", "sizes": "96x96" },
+        { "src": "/images/icon-food-4x.png", "type": "image/png", "sizes": "192x192" },
+        { "src": "/images/icon-food-10x.png", "type": "image/png", "sizes": "512x512" }
+    ],
+    "start_url": "index.html",
+    "background_color": "#9d60e2",
+    "display": "standalone",
+    "theme_color": "#dfbbea"
+}
