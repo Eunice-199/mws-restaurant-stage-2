@@ -1,14 +1,14 @@
 /**
  * Common database helper functions.
  */
-class DBHelper { // eslint-disable-line no-unused-vars 
+class DBHelper {
 
     /**
      * Database URL.
      * Change this to restaurants.json file location on your server.
      */
     static get DATABASE_URL() {
-        const port = 1338; // Change this to your server port
+        const port = 1338 // Change this to your server port
         return `http://localhost:${port}/restaurants`;
     }
 
@@ -16,18 +16,19 @@ class DBHelper { // eslint-disable-line no-unused-vars
      * Fetch all restaurants.
      */
     static fetchRestaurants(callback) {
-
-        fetch(DBHelper.DATABASE_URL)
-            .then(response => {
-                if (!response.ok) {
-                    throw Error(`Request failed. Returned status of ${response.statusText}`);
-                }
-                const restaurants = response.json();
-                return restaurants;
-            })
-            .then(restaurants => callback(null, restaurants))
-            .catch(err => callback(err, null));
-
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET', DBHelper.DATABASE_URL);
+        xhr.onload = () => {
+            if (xhr.status === 200) { // Got a success response from server!
+                const json = JSON.parse(xhr.responseText);
+                const restaurants = json; //json.restaurants;
+                callback(null, restaurants);
+            } else { // Oops!. Got an error from server.
+                const error = (`Request failed. Returned status of ${xhr.status}`);
+                callback(error, null);
+            }
+        };
+        xhr.send();
     }
 
     /**
@@ -90,7 +91,7 @@ class DBHelper { // eslint-disable-line no-unused-vars
             if (error) {
                 callback(error, null);
             } else {
-                let results = restaurants;
+                let results = restaurants
                 if (cuisine != 'all') { // filter by cuisine
                     results = results.filter(r => r.cuisine_type == cuisine);
                 }
@@ -112,9 +113,9 @@ class DBHelper { // eslint-disable-line no-unused-vars
                 callback(error, null);
             } else {
                 // Get all neighborhoods from all restaurants
-                const neighborhoods = restaurants.map((v, i) => restaurants[i].neighborhood);
-                // Remove duplicates from neighborhoods
-                const uniqueNeighborhoods = neighborhoods.filter((v, i) => neighborhoods.indexOf(v) == i);
+                const neighborhoods = restaurants.map((v, i) => restaurants[i].neighborhood)
+                    // Remove duplicates from neighborhoods
+                const uniqueNeighborhoods = neighborhoods.filter((v, i) => neighborhoods.indexOf(v) == i)
                 callback(null, uniqueNeighborhoods);
             }
         });
@@ -130,9 +131,9 @@ class DBHelper { // eslint-disable-line no-unused-vars
                 callback(error, null);
             } else {
                 // Get all cuisines from all restaurants
-                const cuisines = restaurants.map((v, i) => restaurants[i].cuisine_type);
-                // Remove duplicates from cuisines
-                const uniqueCuisines = cuisines.filter((v, i) => cuisines.indexOf(v) === i);
+                const cuisines = restaurants.map((v, i) => restaurants[i].cuisine_type)
+                    // Remove duplicates from cuisines
+                const uniqueCuisines = cuisines.filter((v, i) => cuisines.indexOf(v) == i)
                 callback(null, uniqueCuisines);
             }
         });
@@ -149,8 +150,26 @@ class DBHelper { // eslint-disable-line no-unused-vars
      * Restaurant image URL.
      */
     static imageUrlForRestaurant(restaurant) {
-        return (`/img/${restaurant.photograph || '1'}.jpg`);
+            //return (`/img/${restaurant.photograph}`);
+            return (`/img/${restaurant.photograph || '1'}.jpg`);
+
+        }
+        /**
+         * Index image Srcset.
+         */
+    static imageSrcsetForIndex(restaurant) {
+        // return (`${restaurant.srcset_index}`);
+        return (`/img/${restaurant.id}-480.jpg 480w`);
     }
+
+    /**
+     * Restaurant image Srcset.
+     */
+    static imageSrcsetForRestaurant(restaurant) {
+        // return (`${restaurant.srcset_restaurant}`);
+        return (`/img/${restaurant.id}-480.jpg 480w,/img/${restaurant.id}-800.jpg 800w,/img/${restaurant.id}-1600.jpg 1600w`);
+    }
+
 
 
 

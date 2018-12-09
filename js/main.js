@@ -26,7 +26,7 @@ const fetchNeighborhoods = () => {
             fillNeighborhoodsHTML();
         }
     });
-}
+};
 
 /**
  * Set neighborhoods HTML.
@@ -39,7 +39,7 @@ const fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
         option.value = neighborhood;
         select.append(option);
     });
-}
+};
 
 /**
  * Fetch all cuisines and set their HTML.
@@ -53,7 +53,7 @@ const fetchCuisines = () => {
             fillCuisinesHTML();
         }
     });
-}
+};
 
 /**
  * Set cuisines HTML.
@@ -67,7 +67,7 @@ const fillCuisinesHTML = (cuisines = self.cuisines) => {
         option.value = cuisine;
         select.append(option);
     });
-}
+};
 
 /**
  * Initialize leaflet map, called from HTML.
@@ -144,7 +144,7 @@ const fillRestaurantsHTML = (restaurants = self.restaurants) => {
     });
     addMarkersToMap();
 
-    myLazyLoad.update();
+    //myLazyLoad.update();
 }
 
 
@@ -163,7 +163,11 @@ const createRestaurantHTML = (restaurant) => {
 
     /* Thumbnail */
     const image = document.createElement('img');
-    let imageSrc = DBHelper.imageUrlForRestaurant(restaurant);
+    imageSrc = DBHelper.imageUrlForRestaurant(restaurant);
+    image.src = DBHelper.imageUrlForRestaurant(restaurant);
+    image.srcset = DBHelper.imageSrcsetForIndex(restaurant);
+    image.src = DBHelper.imageUrlForRestaurant(restaurant);
+    image.sizes = '400px';
     image.className = 'restaurant-img';
     image.alt = `${restaurant.name} restaurant's photo`;
 

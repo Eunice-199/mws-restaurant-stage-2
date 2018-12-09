@@ -27,7 +27,7 @@ self.addEventListener('activate', function(event) {
                         return caches.delete(cacheName);
                     }
                 })
-            ).then(() => { console.log('AAAAAAAAAAA'); });
+            ).then(() => { console.log('eeeeeee'); });
         })
     );
 });
@@ -58,12 +58,14 @@ function precache() {
             './',
             './index.html',
             './restaurant.html',
-            //'./css/styles.css',
-            './css/combined.css',
+            './css/styles.css',
+            //'./css/responsive.css',
+            // './css/combined.css',
             './js/main.js',
             './js/restaurant_info.js',
             './js/dbhelper.js',
-            //'./js/combined.js',
+            './js/register_sw.js',
+            './js/combined.js',
             './img/1.jpg', './img/1-480.jpg',
             './img/2.jpg', './img/2-480.jpg',
             './img/3.jpg', './img/3-480.jpg',
@@ -89,7 +91,8 @@ function fromCache(request) {
 function updateCache(request) {
     return caches.open(CACHE).then(function(cache) {
         return fetch(request).then(function(response) {
-            return cache.put(request, response);
+            return cache.put(request, response.clone());
+
         });
     });
 }
