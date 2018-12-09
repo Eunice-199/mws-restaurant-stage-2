@@ -50,35 +50,69 @@ self.addEventListener('fetch', event => {
 
         event.waitUntil(updateCache(event.request));
     }
+    return event;
 });
 
-function precache() {
-    return caches.open(CACHE).then(function(cache) {
-        return cache.addAll([
-            './',
-            './index.html',
-            './restaurant.html',
-            './css/styles.css',
-            //'./css/responsive.css',
-            // './css/combined.css',
-            './js/main.js',
-            './js/restaurant_info.js',
-            './js/dbhelper.js',
-            './js/register_sw.js',
-            './js/combined.js',
-            './img/1.jpg', './img/1-480.jpg',
-            './img/2.jpg', './img/2-480.jpg',
-            './img/3.jpg', './img/3-480.jpg',
-            './img/4.jpg', './img/4-480.jpg',
-            './img/5.jpg', './img/5-480.jpg',
-            './img/6.jpg', './img/6-480.jpg',
-            './img/7.jpg', './img/7-480.jpg',
-            './img/8.jpg', './img/8-480.jpg',
-            './img/9.jpg', './img/9-480.jpg',
-            './img/10.jpg', './img/10-480.jpg'
-        ]);
-    });
-}
+// function precache() {
+//     return caches.open(CACHE).then(function(cache) {
+//         return cache.addAll([
+//             './',
+//             './index.html',
+//             './restaurant.html',
+//             './css/styles.css',
+//             //'./css/responsive.css',
+//             // './css/combined.css',
+//             './js/main.js',
+//             './js/restaurant_info.js',
+//             './js/dbhelper.js',
+//             './js/register_sw.js',
+//             './js/combined.js',
+//             './img/1.jpg', './img/1-480.jpg',
+//             './img/2.jpg', './img/2-480.jpg',
+//             './img/3.jpg', './img/3-480.jpg',
+//             './img/4.jpg', './img/4-480.jpg',
+//             './img/5.jpg', './img/5-480.jpg',
+//             './img/6.jpg', './img/6-480.jpg',
+//             './img/7.jpg', './img/7-480.jpg',
+//             './img/8.jpg', './img/8-480.jpg',
+//             './img/9.jpg', './img/9-480.jpg',
+//             './img/10.jpg', './img/10-480.jpg'
+//         ]);
+//     });
+// }
+self.addEventListener('install', event => {
+    event.waitUntil(
+        caches.open(staticCacheName)
+        .then(cache => {
+            return cache.addAll([
+                './',
+                './index.html',
+                './restaurant.html',
+                // './css/styles.css',
+                //'./css/responsive.css',
+                './css/combined.css',
+                './js/main.js',
+                './js/restaurant_info.js',
+                './js/dbhelper.js',
+                './js/register_sw.js',
+                './js/combined.js',
+                './img/1.jpg', './img/1-480.jpg',
+                './img/2.jpg', './img/2-480.jpg',
+                './img/3.jpg', './img/3-480.jpg',
+                './img/4.jpg', './img/4-480.jpg',
+                './img/5.jpg', './img/5-480.jpg',
+                './img/6.jpg', './img/6-480.jpg',
+                './img/7.jpg', './img/7-480.jpg',
+                './img/8.jpg', './img/8-480.jpg',
+                './img/9.jpg', './img/9-480.jpg',
+                './img/10.jpg', './img/10-480.jpg'
+            ]).catch(error => {
+                console.log('Caches open failed: ' + error);
+            });
+        })
+    );
+});
+
 
 function fromCache(request) {
     return caches.open(CACHE).then(function(cache) {
